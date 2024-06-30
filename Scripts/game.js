@@ -3,22 +3,26 @@ let gamePattern = [];
 let userClickedPattern = [];
 let started = false;
 let level = 0;
+let gameInProgress = false;
 
 document.addEventListener('keypress', () => {
     if (!started) {
         document.querySelector("#level-title").textContent = `Level ${level}`;
         nextSequence();
         started = true;
+        gameInProgress = true;
     }
 });
 
 document.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', function () {
-        const userChosenColor = this.id;
-        userClickedPattern.push(userChosenColor);
-        playSound(userChosenColor);
-        animatePress(userChosenColor);
-        checkAnswer(userClickedPattern.length - 1);
+        if (gameInProgress) {
+            const userChosenColor = this.id;
+            userClickedPattern.push(userChosenColor);
+            playSound(userChosenColor);
+            animatePress(userChosenColor);
+            checkAnswer(userClickedPattern.length - 1);
+        }
     });
 });
 
@@ -27,7 +31,6 @@ function nextSequence() {
     level++;
     document.querySelector("#level-title").textContent = `Level ${level}`;
     const randomNumber = Math.floor(Math.random() * 4);
-    // console.log(randomNumber);
     const randomChosenColor = buttonColors[randomNumber];
     gamePattern.push(randomChosenColor);
     document.querySelector(`#${randomChosenColor}`).classList.add('pressed');
@@ -37,8 +40,8 @@ function nextSequence() {
     playSound(randomChosenColor);
 }
 
-function playSound(colorName) {
-    const audio = new Audio(`./Sounds/${colorName}.mp3`);
+function playSound(name) {
+    const audio = new Audio(`./Sounds/${name}.mp3`);
     audio.play();
 }
 
@@ -61,6 +64,7 @@ function checkAnswer(currentLevel) {
         playSound('wrong');
         document.body.classList.add('game-over');
         document.querySelector("#level-title").textContent = `Game Over, Press Any Key to Restart`;
+        gameInProgress = false;
 
         setTimeout(() => {
             document.body.classList.remove('game-over');
